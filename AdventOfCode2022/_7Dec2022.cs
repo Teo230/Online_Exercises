@@ -125,15 +125,26 @@ namespace Online_Exercises.AdventOfCode2022
             var stringText = File.ReadAllLines("AdventOfCode2022/7Dec2022.txt");
 
             CreateTree(stringText);
-            CleanDir(_tree);
+            _maxSpaceRange = _tree.Size - 40_000_000;
+            var result = RetrieveSmallestUnsedSpace(_tree);
 
-            Console.WriteLine("2 - Total dir size {0}", 0);
+            Console.WriteLine("2 - Total dir size {0}", result);
         }
 
-        private static int _maxSpaceSize = 70_000_000;
-        private static void CleanDir(CDir dir)
+        private static int _maxSpaceRange = 0;
+        private static int RetrieveSmallestUnsedSpace(CDir dir) // TODO - It's not over till it's over
         {
-            //...
+            var _result = int.MaxValue;
+            if(dir.Size >= _maxSpaceRange)
+                _result = dir.Size;
+
+            foreach(var subDir in dir.Dirs)
+            {
+                var subDirSize = RetrieveSmallestUnsedSpace(subDir);
+                _result = Math.Min(_result, subDirSize);
+            }
+
+            return _result;
         }
     }
 

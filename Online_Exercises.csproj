@@ -17,6 +17,9 @@
     <None Update="AdventOfCode2024\1Dec2024.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="AdventOfCode2024\4Dec2024.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="AdventOfCode2024\3Dec2024.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
