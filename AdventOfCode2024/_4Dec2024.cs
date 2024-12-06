@@ -27,7 +27,7 @@ namespace Online_Exercises.AdventOfCode2024
                     var cell = row[x];
                     if (cell == 'X')
                     {
-                        totalMatch += CountMatch(y, x, matrix);
+                        totalMatch += CountXMAS(y, x, matrix);
                     }
                 }
             }
@@ -35,8 +35,7 @@ namespace Online_Exercises.AdventOfCode2024
             Console.WriteLine("1 - Times XMAS appears: {0}", totalMatch);
         }
 
-        // VOGLIO MORIRE
-        private static int CountMatch(int positionRow, int positionColumn, char[][] matrix)
+        private static int CountXMAS(int positionRow, int positionColumn, char[][] matrix)
         {
             int result = 0;
             const string XMAS = "XMAS";
@@ -58,9 +57,9 @@ namespace Online_Exercises.AdventOfCode2024
                 // Interaction for the length of the word to search
                 for (int nextChar = 0; nextChar < XMAS.Length; nextChar++)
                 {
-                    if (currentRow >= 0 && 
-                        currentRow < rowLength && 
-                        currentColumn >= 0 && 
+                    if (currentRow >= 0 &&
+                        currentRow < rowLength &&
+                        currentColumn >= 0 &&
                         currentColumn < columnLength)
                     {
                         word += matrix[currentRow][currentColumn];
@@ -97,9 +96,69 @@ namespace Online_Exercises.AdventOfCode2024
 
         public static void Part2()
         {
-            var stringText = File.ReadAllText("AdventOfCode2024/4Dec2024.txt");
+            var textLines = File.ReadAllLines("AdventOfCode2024/4Dec2024.txt");
 
-            Console.WriteLine("2 - Times XMAS appears: {0}", 0);
+            var matrix = CreateMatrix(textLines);
+
+            int totalMatch = 0;
+
+            for (int y = 0; y < matrix.Length; y++)
+            {
+                var row = matrix[y];
+
+                for (int x = 0; x < row.Length; x++)
+                {
+                    var cell = row[x];
+                    if (cell == 'A')
+                    {
+                        totalMatch += CountMAS(y, x, matrix) ? 1 : 0;
+                    }
+                }
+            }
+            Console.WriteLine("2 - Times MAS appears: {0}", totalMatch);
+        }
+
+        private static bool CountMAS(int positionY, int positionX, char[][] matrix)
+        {
+            string pattern = "MAS";
+            int result = 0;
+            var rowLength = matrix.Length;
+            var columnLength = matrix[0].Length;
+
+            // Define all 4 possible directions
+            int[] dx = { -1, 1, 1, -1 };
+            int[] dy = { 1, 1, -1, -1 };
+
+            char[] word = new char[5];
+            word[4] = 'A';
+            for (int d = 0; d < 4; d++)
+            {
+                var nearPosX = positionX + dx[d];
+                var nearPosY = positionY + dy[d];
+
+                if (nearPosX < 0 || 
+                    nearPosY < 0 ||
+                    nearPosX >= rowLength || 
+                    nearPosY >= columnLength) 
+                    continue;
+
+                var nearChar = matrix[nearPosY][nearPosX];
+                word[d] = nearChar;
+            }
+
+            string diagonal1 = $"{word[0]}{word[4]}{word[2]}";
+            if (diagonal1 == pattern) result++;
+
+            string reverseDiagonal1 = new(diagonal1.Reverse().ToArray());
+            if (reverseDiagonal1 == pattern) result++;
+
+            string diagonal2 = $"{word[1]}{word[4]}{word[3]}";
+            if (diagonal2 == pattern) result++;
+
+            string reverseDiagonal2 = new(diagonal2.Reverse().ToArray());
+            if (reverseDiagonal2 == pattern) result++;
+
+            return result == 2;
         }
     }
 }
