@@ -32,7 +32,7 @@ namespace Online_Exercises.AdventOfCode2024
                 }
             }
 
-            Console.WriteLine("1 - Times XMAS appears: {0}", totalMatch);
+            Console.WriteLine("04/12/24 Part 1 - {0}", totalMatch);
         }
 
         private static int CountXMAS(int positionRow, int positionColumn, char[][] matrix)
@@ -115,7 +115,7 @@ namespace Online_Exercises.AdventOfCode2024
                     }
                 }
             }
-            Console.WriteLine("2 - Times MAS appears: {0}", totalMatch);
+            Console.WriteLine("04/12/24 Part 2 - {0}", totalMatch);
         }
 
         private static bool CountMAS(int positionY, int positionX, char[][] matrix)

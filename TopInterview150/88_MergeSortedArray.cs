@@ -123,7 +123,7 @@ namespace Online_Exercises.TopInterview150
             Merge(nums1, 1, nums2, 1);
             if (!nums1.SequenceEqual([1,2])) throw new Exception();
 
-            Console.WriteLine("Test 88 passed");
+            Console.WriteLine("Test 88 [✓]");
         }
     }
 }

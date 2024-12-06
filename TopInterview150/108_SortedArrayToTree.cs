@@ -38,7 +38,7 @@ namespace Online_Exercises.TopInterview150
             // Test2
             tree = SortedArrayToBST([1, 3]);
 
-            Console.WriteLine("Test 226 passed");
+            Console.WriteLine("Test 226 [✓]");
         }
 
         public class TreeNode

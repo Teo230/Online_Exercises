@@ -49,7 +49,7 @@ namespace Online_Exercises.TopInterview150
             isPalidrome = IsPalindrome("0P");
             if (isPalidrome) throw new Exception();
 
-            Console.WriteLine("Test 125 passed");
+            Console.WriteLine("Test 125 [✓]");
         }
     }
 }

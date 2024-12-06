@@ -28,7 +28,7 @@ namespace Online_Exercises.AdventOfCode2024
                 result += mulResult;
             }
 
-            Console.WriteLine("1 - Total mul result: {0}", result);
+            Console.WriteLine("03/12/24 Part 1 - {0}", result);
         }
 
        
@@ -70,7 +70,7 @@ namespace Online_Exercises.AdventOfCode2024
                 result += mulResult;
             }
 
-            Console.WriteLine("2 - Total mul result: {0}", result);
+            Console.WriteLine("03/12/24 Part 2 - {0}", result);
         }
     }
 }

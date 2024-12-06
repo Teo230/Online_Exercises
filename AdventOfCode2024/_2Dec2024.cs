@@ -29,7 +29,7 @@ namespace Online_Exercises.AdventOfCode2024
                 result++;
             }
 
-            Console.WriteLine("Total safe reports: {0}", result);
+            Console.WriteLine("02/12/24 Part 1 - {0}", result);
         }
 
         private static bool IsAscAndUnique(this List<int> numbers)
@@ -94,7 +94,7 @@ namespace Online_Exercises.AdventOfCode2024
                 result++;
             }
 
-            Console.WriteLine("New total safe reports: {0}", result);
+            Console.WriteLine("02/12/24 Part 2 - {0}", result);
         }
 
         private static bool ValidLevel(List<int> numbers)

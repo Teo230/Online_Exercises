@@ -21,7 +21,7 @@ namespace Online_Exercises.AdventOfCode2022
             CreateTree(stringText);
             TotalValidDirs(_tree);
 
-            Console.WriteLine("1 - Total dir size {0}", _totalDirSize);
+            Console.WriteLine("07/12/22 Part 1 - {0}", _totalDirSize);
         }
 
         private static void CreateTree(string[] stringText)
@@ -128,7 +128,7 @@ namespace Online_Exercises.AdventOfCode2022
             _maxSpaceRange = _tree.Size - 40_000_000;
             var result = RetrieveSmallestUnsedSpace(_tree);
 
-            Console.WriteLine("2 - Total dir size {0}", result);
+            Console.WriteLine("07/12/22 Part 2 - {0}", result);
         }
 
         private static int _maxSpaceRange = 0;

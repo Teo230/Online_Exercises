@@ -19,7 +19,7 @@ namespace Online_Exercises.AdventOfCode2015
 
             var delta = totalUp - totalDown;
 
-            Console.WriteLine("The floor is {0}", delta);
+            Console.WriteLine("01/12/15 Part 1 - {0}", delta);
         }
 
         public static void Part2()
@@ -36,7 +36,7 @@ namespace Online_Exercises.AdventOfCode2015
 
                 if(currentFloor < 0)
                 {
-                    Console.WriteLine("Santa enter the basement at {0}", i + 1);
+                    Console.WriteLine("01/12/15 Part 2 - {0}", i + 1);
                     return;
                 }
             }

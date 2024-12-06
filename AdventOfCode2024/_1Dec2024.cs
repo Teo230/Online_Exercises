@@ -28,7 +28,7 @@ namespace Online_Exercises.AdventOfCode2024
                 result += delta;
             }
 
-            Console.WriteLine("The total distance is {0}", result);
+            Console.WriteLine("01/12/24 Part 1 - {0}", result);
         }
 
         public static void Part2()
@@ -51,7 +51,7 @@ namespace Online_Exercises.AdventOfCode2024
                 result = result + (column1Value * value2Count);
             }
 
-            Console.WriteLine("The similarity score is {0}", result);
+            Console.WriteLine("01/12/24 Part 2 - {0}", result);
         }
     }
 }
