@@ -43,3 +43,6 @@ _5Dec2024.Part2();
 
 _6Dec2024.Part1();
 _6Dec2024.Part2();
+
+_7Dec2024.Part1();
+_7Dec2024.Part2();
