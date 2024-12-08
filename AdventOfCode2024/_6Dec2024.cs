@@ -1,92 +1,132 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json;
 
 namespace Online_Exercises.AdventOfCode2024
 {
     public static class _6Dec2024
     {
-        public static void Part1()
+        public static void Both()
         {
             var textLines = File.ReadAllLines("AdventOfCode2024/6Dec2024.txt");
 
-            int[][] labyrinth = CreateMatrix(textLines);
+            char[][] labyrinth = CreateMatrix(textLines);
             var guardPosition = GetGuardPosition(labyrinth);
 
-            int currentPosX = guardPosition.posX;
-            int currentPosY = guardPosition.posY;
-            Direction currentDirection = Direction.Up;
-            //PrintMatrix(labyrinth);
-            labyrinth[currentPosY][currentPosX] = 1;
+            var result = DoPath(labyrinth, guardPosition.posY, guardPosition.posX, Direction.Up);
 
-            var result = 1;
+            Console.WriteLine("06/12/24 Part 1 - {0}", result.guardSteps);
+            Console.WriteLine("06/12/24 Part 2 - {0}", result.loops);
+        }
+
+        private static (long guardSteps, long loops) DoPath(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
+        {
+            List<(int posY, int posX)> guardSteps = new();
+            long loopsResult = 0;
+            char[][] cleanLabyrith = labyrinth.DeepClone();
+            long check = 0;
+
             while (true)
             {
-                //PrintMatrix(labyrinth);
-
+                check++;
                 var currentValue = labyrinth[currentPosY][currentPosX];
-
-                if (currentValue == 0)
+                if (currentValue == '.' || currentValue == '^')
                 {
-                    labyrinth[currentPosY][currentPosX] = 1;
-                    result++;
+                    labyrinth[currentPosY][currentPosX] = GetDirectionChar(currentDirection);
+                    guardSteps.Add((currentPosY, currentPosX));
+                }
+                else if (currentValue == '|' || currentValue == '-')
+                {
+                    labyrinth[currentPosY][currentPosX] = '+';
                 }
 
+                // Check for loop
+                var loop = CheckForLoop(cleanLabyrith, currentPosY, currentPosX, currentDirection);
+                if (loop) loopsResult++;
+
                 var desiredPosition = TakeNextStep(labyrinth, currentPosY, currentPosX, currentDirection);
-                if (desiredPosition.posX < 0 || 
-                    desiredPosition.posY < 0 ||
-                    desiredPosition.posX >= labyrinth.Length ||
-                    desiredPosition.posY >= labyrinth.Length) 
+                if (desiredPosition.posX < 0 || desiredPosition.posY < 0 || desiredPosition.posX >= labyrinth.Length || desiredPosition.posY >= labyrinth.Length)
                     break;
 
                 var desiredPositionValue = labyrinth[desiredPosition.posY][desiredPosition.posX];
-                if(desiredPositionValue == -1)
+                if (desiredPositionValue == '#')
                 {
-                    if (currentDirection == Direction.Up) currentDirection = Direction.Right;
-                    else if (currentDirection == Direction.Right) currentDirection = Direction.Down;
-                    else if (currentDirection == Direction.Down) currentDirection = Direction.Left;
-                    else if (currentDirection == Direction.Left) currentDirection = Direction.Up;
+                    currentDirection = ChangeDirection(currentDirection);
                     continue;
                 }
 
-                guardPosition = desiredPosition;
-                currentPosX = guardPosition.posX;
-                currentPosY = guardPosition.posY;
+                currentPosX = desiredPosition.posX;
+                currentPosY = desiredPosition.posY;
             }
 
-            Console.WriteLine("06/12/24 Part 1 - {0}", result);
+            return (guardSteps.Count, loopsResult);
         }
 
-        public static void Part2()
+        private static bool CheckForLoop(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
         {
-            var textLines = File.ReadAllLines("AdventOfCode2024/6Dec2024.txt");
+            List<(int posY, int posX)> guardSteps = new();
+            char[][] cleanLabyrith = labyrinth.DeepClone();
+            currentDirection = ChangeDirection(currentDirection);
 
-            Console.WriteLine("06/12/24 Part 2 - {0}", 0);
+            while (true)
+            {
+                var currentValue = cleanLabyrith[currentPosY][currentPosX];
+                if (currentValue == '.' || currentValue == '^')
+                {
+                    cleanLabyrith[currentPosY][currentPosX] = GetDirectionChar(currentDirection);
+                    guardSteps.Add((currentPosY, currentPosX));
+                }
+                else if (currentValue == '|' || currentValue == '-')
+                {
+                    cleanLabyrith[currentPosY][currentPosX] = '+';
+                }
+
+                var desiredPosition = TakeNextStep(cleanLabyrith, currentPosY, currentPosX, currentDirection);
+                if (desiredPosition.posX < 0 || desiredPosition.posY < 0 || desiredPosition.posX >= cleanLabyrith.Length || desiredPosition.posY >= cleanLabyrith.Length)
+                    return false;
+
+                var desiredPositionValue = cleanLabyrith[desiredPosition.posY][desiredPosition.posX];
+
+                if (guardSteps.Contains((desiredPosition.posY, desiredPosition.posX)))
+                    return true;
+
+                if (desiredPositionValue == '#')
+                {
+                    currentDirection = ChangeDirection(currentDirection);
+                    continue;
+                }
+
+                currentPosX = desiredPosition.posX;
+                currentPosY = desiredPosition.posY;
+            }
         }
 
-        private static int[][] CreateMatrix(string[] textLines)
+        private static char[][] CreateMatrix(string[] textLines)
         {
-            int[][] matrix = new int[textLines.Length][];
+            char[][] matrix = new char[textLines.Length][];
             for (int i = 0; i < textLines.Length; i++)
             {
                 var textLine = textLines[i];
                 var chars = textLine.ToCharArray();
-                var row = matrix[i] = new int[chars.Length];
+                var row = matrix[i] = new char[chars.Length];
 
                 for (int j = 0; j < chars.Length; j++)
                 {
-                    int convertedChar = GetCharCode(chars[j]);
-                    row[j] = convertedChar;
+                    row[j] = chars[j];
                 }
             }
 
             return matrix;
         }
 
-        private static (int posY, int posX) GetGuardPosition(int[][] labyrinth)
+        private static (int posY, int posX) GetGuardPosition(char[][] labyrinth)
         {
             for (int r = 0; r < labyrinth.Length; r++)
             {
@@ -96,29 +136,29 @@ namespace Online_Exercises.AdventOfCode2024
                 {
                     var column = row[c];
                     var value = labyrinth[r][c];
-                    if (value == 2) return new(r, c);
+                    if (value == '^') return new(r, c);
                 }
             }
 
             return (-1, -1);
         }
 
-        private static int GetCharCode(char v)
+        private static Direction ChangeDirection(Direction currentDirection)
         {
-            if (v == '#') return -1;
-            if (v == '^') return 2;
-            return 0;
+            if (currentDirection == Direction.Up) currentDirection = Direction.Right;
+            else if (currentDirection == Direction.Right) currentDirection = Direction.Down;
+            else if (currentDirection == Direction.Down) currentDirection = Direction.Left;
+            else if (currentDirection == Direction.Left) currentDirection = Direction.Up;
+            return currentDirection;
         }
 
-        private static char GetIntCode(int v)
+        private static char GetDirectionChar(Direction direction)
         {
-            if (v == 1) return 'X';
-            if (v == -1) return '#';
-            if (v == 2) return '^';
-            return '.';
+            if (direction == Direction.Up || direction == Direction.Down) return '|';
+            return '-';
         }
 
-        private static (int posY, int posX) TakeNextStep(int[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
+        private static (int posY, int posX) TakeNextStep(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
         {
             int[] dx = [0, 0, -1, 1];
             int[] dy = [-1, 1, 0, 0];
@@ -129,7 +169,18 @@ namespace Online_Exercises.AdventOfCode2024
             return new(currentPosY, currentPosX);
         }
 
-        public static void PrintMatrix(int[][] matrix)
+        private static (int posY, int posX) TakeBackStep(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
+        {
+            int[] dx = [0, 0, 1, -1];
+            int[] dy = [1, -1, 0, 0];
+
+            currentPosX += dx[(int)currentDirection];
+            currentPosY += dy[(int)currentDirection];
+
+            return new(currentPosY, currentPosX);
+        }
+
+        public static void PrintMatrix(char[][] matrix)
         {
             Console.Clear();
 
@@ -137,13 +188,12 @@ namespace Online_Exercises.AdventOfCode2024
             {
                 for (int j = 0; j < matrix[i].Length; j++)
                 {
-                    var value = GetIntCode(matrix[i][j]);
+                    var value = matrix[i][j];
                     Console.Write(value);
                 }
                 Console.WriteLine();
             }
 
-            Thread.Sleep(100);
             //Console.ReadLine();
         }
 
@@ -153,6 +203,16 @@ namespace Online_Exercises.AdventOfCode2024
             Down,
             Left,
             Right
+        }
+
+        public static T DeepClone<T>(this T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                JsonSerializer.Serialize(ms, obj);
+                ms.Position = 0;
+                return JsonSerializer.Deserialize<T>(ms);
+            }
         }
     }
 }
