@@ -41,4 +41,7 @@ _4Dec2024.Part2();
 _5Dec2024.Part1();
 _5Dec2024.Part2();
 
-_6Dec2024.Both();
+// _6Dec2024.Both();
+
+_7Dec2024.Part1();
+_7Dec2024.Part2();
