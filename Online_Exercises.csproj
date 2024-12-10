@@ -35,6 +35,9 @@
     <None Update="AdventOfCode2024\7Dec2024.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="AdventOfCode2024\8Dec2024.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

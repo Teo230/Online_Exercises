@@ -42,7 +42,12 @@ _5Dec2024.Part1();
 _5Dec2024.Part2();
 
 //_6Dec2024.Part1();
-_6Dec2024.Part2();
+//_6Dec2024.Part2();
 
 // _7Dec2024.Part1();
 // _7Dec2024.Part2();
+
+_8Dec2024.Part1();
+_8Dec2024.Part2();
+
+Console.ReadKey();
