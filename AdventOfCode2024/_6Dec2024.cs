@@ -8,103 +8,160 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text.Json;
+using System.Security;
+using static Online_Exercises.AdventOfCode2024._6Dec2024;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Online_Exercises.AdventOfCode2024
 {
     public static class _6Dec2024
     {
-        public static void Both()
+        public static void Part1()
         {
             var textLines = File.ReadAllLines("AdventOfCode2024/6Dec2024.txt");
 
             char[][] labyrinth = CreateMatrix(textLines);
             var guardPosition = GetGuardPosition(labyrinth);
 
-            var result = DoPath(labyrinth, guardPosition.posY, guardPosition.posX, Direction.Up);
+            var result = StartGuardRound(labyrinth, guardPosition, Direction.Up);
 
-            Console.WriteLine("06/12/24 Part 1 - {0}", result.guardSteps);
-            Console.WriteLine("06/12/24 Part 2 - {0}", result.loops);
+            Console.WriteLine("06/12/24 Part 1 - {0}", result);
         }
 
-        private static (long guardSteps, long loops) DoPath(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
+        public static void Part2()
         {
-            List<(int posY, int posX)> guardSteps = new();
-            long loopsResult = 0;
-            char[][] cleanLabyrith = labyrinth.DeepClone();
-            long check = 0;
+            var textLines = File.ReadAllLines("AdventOfCode2024/6Dec2024.txt");
 
+            char[][] labyrinth = CreateMatrix(textLines);
+            var guardPosition = GetGuardPosition(labyrinth);
+
+            var result = StartGuardRound2(labyrinth, guardPosition, Direction.Up);
+
+            Console.WriteLine("06/12/24 Part 2 - {0}", result);
+        }
+
+        private static long StartGuardRound(char[][] labyrinth, (int posY, int posX) guardPosition, Direction direction)
+        {
+            long totalSteps = 1;
             while (true)
             {
-                check++;
-                var currentValue = labyrinth[currentPosY][currentPosX];
-                if (currentValue == '.' || currentValue == '^')
-                {
-                    labyrinth[currentPosY][currentPosX] = GetDirectionChar(currentDirection);
-                    guardSteps.Add((currentPosY, currentPosX));
-                }
-                else if (currentValue == '|' || currentValue == '-')
-                {
-                    labyrinth[currentPosY][currentPosX] = '+';
-                }
+                var desiredPosition = NextPosition(labyrinth, guardPosition.posY, guardPosition.posX, direction);
 
-                // Check for loop
-                var loop = CheckForLoop(cleanLabyrith, currentPosY, currentPosX, currentDirection);
-                if (loop) loopsResult++;
-
-                var desiredPosition = TakeNextStep(labyrinth, currentPosY, currentPosX, currentDirection);
-                if (desiredPosition.posX < 0 || desiredPosition.posY < 0 || desiredPosition.posX >= labyrinth.Length || desiredPosition.posY >= labyrinth.Length)
-                    break;
+                // If touch the edges, stop the move
+                if (desiredPosition.posY < 0 ||
+                    desiredPosition.posX < 0 ||
+                    desiredPosition.posY >= labyrinth.Length ||
+                    desiredPosition.posX >= labyrinth[0].Length)
+                {
+                    return totalSteps;
+                }
 
                 var desiredPositionValue = labyrinth[desiredPosition.posY][desiredPosition.posX];
+
+                // If there is an obstacle, turn of 90°
                 if (desiredPositionValue == '#')
                 {
-                    currentDirection = ChangeDirection(currentDirection);
+                    direction = ChangeDirection(direction);
                     continue;
                 }
 
-                currentPosX = desiredPosition.posX;
-                currentPosY = desiredPosition.posY;
-            }
+                // If it's a new place, add to the total place visited
+                if (desiredPositionValue == '.') totalSteps++;
 
-            return (guardSteps.Count, loopsResult);
+                labyrinth[guardPosition.posY][guardPosition.posX] = 'X';
+                labyrinth[desiredPosition.posY][desiredPosition.posX] = '^';
+                guardPosition = desiredPosition;
+            }
         }
 
-        private static bool CheckForLoop(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
+        private static long StartGuardRound2(char[][] labyrinth, (int posY, int posX) guardPosition, Direction direction)
         {
-            List<(int posY, int posX)> guardSteps = new();
-            char[][] cleanLabyrith = labyrinth.DeepClone();
-            currentDirection = ChangeDirection(currentDirection);
+            long totalLoops = 0;
+            var clonedLab = labyrinth.DeepClone();
 
             while (true)
             {
-                var currentValue = cleanLabyrith[currentPosY][currentPosX];
-                if (currentValue == '.' || currentValue == '^')
+                var loop = CheckForLoop(clonedLab, guardPosition, direction);
+                if (loop) 
+                    totalLoops++;
+
+                //PrintMatrix(labyrinth);
+
+                var desiredPosition = NextPosition(labyrinth, guardPosition.posY, guardPosition.posX, direction);
+
+                // If touch the edges, stop the move
+                if (desiredPosition.posY < 0 ||
+                    desiredPosition.posX < 0 ||
+                    desiredPosition.posY >= labyrinth.Length ||
+                    desiredPosition.posX >= labyrinth[0].Length)
                 {
-                    cleanLabyrith[currentPosY][currentPosX] = GetDirectionChar(currentDirection);
-                    guardSteps.Add((currentPosY, currentPosX));
-                }
-                else if (currentValue == '|' || currentValue == '-')
-                {
-                    cleanLabyrith[currentPosY][currentPosX] = '+';
+                    return totalLoops;
                 }
 
-                var desiredPosition = TakeNextStep(cleanLabyrith, currentPosY, currentPosX, currentDirection);
-                if (desiredPosition.posX < 0 || desiredPosition.posY < 0 || desiredPosition.posX >= cleanLabyrith.Length || desiredPosition.posY >= cleanLabyrith.Length)
+                var desiredPositionValue = labyrinth[desiredPosition.posY][desiredPosition.posX];
+                var guardPositionValue = labyrinth[guardPosition.posY][guardPosition.posX];
+
+                // If there is an obstacle, turn of 90°
+                if (desiredPositionValue == '#')
+                {
+                    direction = ChangeDirection(direction);
+                    labyrinth[guardPosition.posY][guardPosition.posX] = '+';
+                    continue;
+                }
+
+                // If it's a new place, add to the total place visited
+                else if (desiredPositionValue == '.')
+                {
+                    if (guardPositionValue != '+') labyrinth[guardPosition.posY][guardPosition.posX] = GetDirectionChar(direction);
+                    labyrinth[desiredPosition.posY][desiredPosition.posX] = '^';
+                }
+
+                // If it's turning around, replace with a mark
+                if (desiredPositionValue == '|' || desiredPositionValue == '-')
+                {
+                    if (guardPositionValue != '+') labyrinth[guardPosition.posY][guardPosition.posX] = GetDirectionChar(direction);
+                    labyrinth[desiredPosition.posY][desiredPosition.posX] = '+';
+                }
+
+                guardPosition = desiredPosition;
+            }
+        }
+
+        private static bool CheckForLoop(char[][] labyrinth, (int posY, int posX) guardPosition, Direction currentDirection)
+        {
+            var startPosition = guardPosition;
+            currentDirection = ChangeDirection(currentDirection);
+            var clonedLab = labyrinth.DeepClone();
+            List<(int, int)> loopPlaces = new List<(int, int)>() { startPosition };
+
+            while (true)
+            {
+                var desiredPosition = NextPosition(clonedLab, guardPosition.posY, guardPosition.posX, currentDirection);
+
+                // If touch the edges, stop the move
+                if (desiredPosition.posY < 0 ||
+                    desiredPosition.posX < 0 ||
+                    desiredPosition.posY >= clonedLab.Length ||
+                    desiredPosition.posX >= clonedLab[0].Length)
+                {
                     return false;
+                }
 
-                var desiredPositionValue = cleanLabyrith[desiredPosition.posY][desiredPosition.posX];
+                var desiredPositionValue = clonedLab[desiredPosition.posY][desiredPosition.posX];
+                var guardPositionValue = clonedLab[guardPosition.posY][guardPosition.posX];
 
-                if (guardSteps.Contains((desiredPosition.posY, desiredPosition.posX)))
-                    return true;
-
+                // If there is an obstacle, turn of 90°
                 if (desiredPositionValue == '#')
                 {
                     currentDirection = ChangeDirection(currentDirection);
                     continue;
                 }
 
-                currentPosX = desiredPosition.posX;
-                currentPosY = desiredPosition.posY;
+                guardPosition = desiredPosition;
+                loopPlaces.Add(guardPosition);
+
+                if (guardPosition == startPosition) return true;
+                if (loopPlaces.Where(x => x == guardPosition).Count() > 2) return true;
             }
         }
 
@@ -134,7 +191,6 @@ namespace Online_Exercises.AdventOfCode2024
 
                 for (int c = 0; c < row.Length; c++)
                 {
-                    var column = row[c];
                     var value = labyrinth[r][c];
                     if (value == '^') return new(r, c);
                 }
@@ -158,7 +214,7 @@ namespace Online_Exercises.AdventOfCode2024
             return '-';
         }
 
-        private static (int posY, int posX) TakeNextStep(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
+        private static (int posY, int posX) NextPosition(char[][] labyrinth, int currentPosY, int currentPosX, Direction currentDirection)
         {
             int[] dx = [0, 0, -1, 1];
             int[] dy = [-1, 1, 0, 0];
@@ -194,7 +250,7 @@ namespace Online_Exercises.AdventOfCode2024
                 Console.WriteLine();
             }
 
-            //Console.ReadLine();
+            Thread.Sleep(250);
         }
 
         public enum Direction

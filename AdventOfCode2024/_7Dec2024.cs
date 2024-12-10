@@ -97,6 +97,7 @@ namespace Online_Exercises.AdventOfCode2024
             GenerateCombos(results, numbers.ToArray(), operators, "", 0);
             return results;
         }
+        
         private static void GenerateCombos(List<string> results, long[] numbers, string[] operators, string current, int index)
         {
             if (index == numbers.Length - 1)
