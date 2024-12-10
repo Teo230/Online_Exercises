@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Online_Exercises.AdventOfCode2024
@@ -13,15 +14,15 @@ namespace Online_Exercises.AdventOfCode2024
             var stringText = File.ReadAllLines("AdventOfCode2024/8Dec2024.txt");
 
             var matrix = CreateMatrix(stringText);
-            PrintMatrix(matrix);
+            //PrintMatrix(matrix);
 
             Dictionary<char, List<(int posY, int posX)>> nodes = GetNodes(matrix);
-            CalculateAntinodes(matrix, nodes);
+            var result = CalculateAntinodes(matrix, nodes);
 
-            Console.WriteLine("08/12/24 Part 1 - {0}", 0);
+            Console.WriteLine("08/12/24 Part 1 - {0}", result);
         }
 
-        private static void CalculateAntinodes(char[][] matrix, Dictionary<char, List<(int posY, int posX)>> nodes)
+        private static long CalculateAntinodes(char[][] matrix, Dictionary<char, List<(int posY, int posX)>> nodes)
         {
             foreach (var node in nodes)
             {
@@ -32,23 +33,51 @@ namespace Online_Exercises.AdventOfCode2024
                     var point1 = combination.point1;
                     var point2 = combination.point2;
 
-                    var delta = CalculateDistance(point1, point2);
+                    var antiNode1 = CalculateAntinodePosition(point1, point2);
+                    if (antiNode1.posY >= 0 && antiNode1.posX >= 0 && antiNode1.posY < matrix.Length && antiNode1.posX < matrix[0].Length)
+                        matrix[antiNode1.posY][antiNode1.posX] = '#';
 
-                    var deltaY = Math.Abs(point1.posY - point2.posY);
-                    var deltaX = Math.Abs(point1.posX - point2.posX);
+                    var antiNode2 = CalculateAntinodePosition(point2, point1);
+                    if (antiNode2.posY >= 0 && antiNode2.posX >= 0 && antiNode2.posY < matrix.Length && antiNode2.posX < matrix[0].Length)
+                        matrix[antiNode2.posY][antiNode2.posX] = '#';
 
-                    // TODO > I need to store the direction to update the antinode distance
-                    //var antiNode1 = CalculateAntinodePosition(point1, delta, deltaX); 
+                    //PrintMatrix(matrix);
                 }
             }
+
+            return CountMarkedPlace(matrix);
         }
 
         public static void Part2()
         {
             var stringText = File.ReadAllLines("AdventOfCode2024/8Dec2024.txt");
 
+            var matrix = CreateMatrix(stringText);
+            Dictionary<char, List<(int posY, int posX)>> nodes = GetNodes(matrix);
 
-            Console.WriteLine("08/12/24 Part 2 - {0}", 0);
+            var result = CalculateAntinodes2(matrix, nodes);
+
+            Console.WriteLine("08/12/24 Part 2 - {0}", result);
+        }
+
+        private static long CalculateAntinodes2(char[][] matrix, Dictionary<char, List<(int posY, int posX)>> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                var combinations = GenerateCombos(node.Value);
+
+                foreach (var combination in combinations)
+                {
+                    var point1 = combination.point1;
+                    var point2 = combination.point2;
+
+                    MarkMultipleAntinodes(matrix, point1, point2);
+                    MarkMultipleAntinodes(matrix, point2, point1);
+                }
+            }
+
+            PrintMatrix(matrix);
+            return CountMarkedPlace(matrix);
         }
 
         private static Dictionary<char, List<(int posY, int posX)>> GetNodes(char[][] matrix)
@@ -101,7 +130,7 @@ namespace Online_Exercises.AdventOfCode2024
                 Console.WriteLine();
             }
 
-            Thread.Sleep(250);
+            Thread.Sleep(100);
         }
 
         private static List<((int posY, int posX) point1, (int posY, int posX) point2)> GenerateCombos(List<(int posY, int posX)> positions)
@@ -133,12 +162,47 @@ namespace Online_Exercises.AdventOfCode2024
         }
 
 
-        private static (int posY, int posX) CalculateAntinodePosition((int posY, int posX) point, double delta, int side1)
+        private static (int posY, int posX) CalculateAntinodePosition((int posY, int posX) point1, (int posY, int posX) point2)
         {
-            int side2 = Math.Abs((int)Math.Pow(delta, 2) - (side1 * side1));
-            var posY = point.posY - side2;
-            var posX = point.posX + side1;
-            return (posY, posX);
+            (int posY, int posX) antinode = new();
+            var deltaY = Math.Abs(point1.posY - point2.posY);
+            var deltaX = Math.Abs(point1.posX - point2.posX);
+
+            if(point1.posY > point2.posY)  antinode.posY = point2.posY - deltaY;
+            else antinode.posY = point2.posY + deltaY;
+
+            if(point1.posX > point2.posX) antinode.posX = point2.posX - deltaX;
+            else antinode.posX = point2.posX + deltaX;
+
+            return antinode;
+        }
+
+        private static long CountMarkedPlace(char[][] matrix)
+        {
+            long counter = 0;
+            for (int r = 0; r < matrix.Length; r++)
+            {
+                var row = matrix[r];
+
+                for (int c = 0; c < row.Length; c++)
+                {
+                    var value = matrix[r][c];
+                    if (value == '.') continue;
+                    else counter++;
+                }
+            }
+
+            return counter;
+        }
+
+        private static void MarkMultipleAntinodes(char[][] matrix, (int posY, int posX) point1, (int posY, int posX) point2)
+        {
+            var antiNode = CalculateAntinodePosition(point1, point2);
+            if (antiNode.posY >= 0 && antiNode.posX >= 0 && antiNode.posY < matrix.Length && antiNode.posX < matrix[0].Length)
+            {
+                matrix[antiNode.posY][antiNode.posX] = '#';
+                MarkMultipleAntinodes(matrix, point2, antiNode);
+            }
         }
     }
 }
