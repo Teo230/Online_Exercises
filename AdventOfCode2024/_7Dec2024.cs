@@ -108,9 +108,11 @@ namespace Online_Exercises.AdventOfCode2024
             }
 
             current += numbers[index];          
+
             for (int i = 0; i < operators.Length; i++)
             {
-                GenerateCombos(results, numbers, operators, current + operators[i], index + 1);
+                current += operators[i];
+                GenerateCombos(results, numbers, operators, current, index + 1);
             }
         }
     }

@@ -48,13 +48,7 @@ namespace Online_Exercises.AdventOfCode2024
                 var desiredPosition = NextPosition(labyrinth, guardPosition.posY, guardPosition.posX, direction);
 
                 // If touch the edges, stop the move
-                if (desiredPosition.posY < 0 ||
-                    desiredPosition.posX < 0 ||
-                    desiredPosition.posY >= labyrinth.Length ||
-                    desiredPosition.posX >= labyrinth[0].Length)
-                {
-                    return totalSteps;
-                }
+                if (ItTouchsTheEdges(labyrinth, desiredPosition)) return totalSteps;
 
                 var desiredPositionValue = labyrinth[desiredPosition.posY][desiredPosition.posX];
 
@@ -82,7 +76,7 @@ namespace Online_Exercises.AdventOfCode2024
             while (true)
             {
                 var loop = CheckForLoop(clonedLab, guardPosition, direction);
-                if (loop) 
+                if (loop)
                     totalLoops++;
 
                 //PrintMatrix(labyrinth);
@@ -90,13 +84,7 @@ namespace Online_Exercises.AdventOfCode2024
                 var desiredPosition = NextPosition(labyrinth, guardPosition.posY, guardPosition.posX, direction);
 
                 // If touch the edges, stop the move
-                if (desiredPosition.posY < 0 ||
-                    desiredPosition.posX < 0 ||
-                    desiredPosition.posY >= labyrinth.Length ||
-                    desiredPosition.posX >= labyrinth[0].Length)
-                {
-                    return totalLoops;
-                }
+                if (ItTouchsTheEdges(labyrinth, desiredPosition)) return totalLoops;
 
                 var desiredPositionValue = labyrinth[desiredPosition.posY][desiredPosition.posX];
                 var guardPositionValue = labyrinth[guardPosition.posY][guardPosition.posX];
@@ -139,13 +127,7 @@ namespace Online_Exercises.AdventOfCode2024
                 var desiredPosition = NextPosition(clonedLab, guardPosition.posY, guardPosition.posX, currentDirection);
 
                 // If touch the edges, stop the move
-                if (desiredPosition.posY < 0 ||
-                    desiredPosition.posX < 0 ||
-                    desiredPosition.posY >= clonedLab.Length ||
-                    desiredPosition.posX >= clonedLab[0].Length)
-                {
-                    return false;
-                }
+                if (ItTouchsTheEdges(clonedLab, desiredPosition)) return false;
 
                 var desiredPositionValue = clonedLab[desiredPosition.posY][desiredPosition.posX];
                 var guardPositionValue = clonedLab[guardPosition.posY][guardPosition.posX];
@@ -163,6 +145,14 @@ namespace Online_Exercises.AdventOfCode2024
                 if (guardPosition == startPosition) return true;
                 if (loopPlaces.Where(x => x == guardPosition).Count() > 2) return true;
             }
+        }
+
+        private static bool ItTouchsTheEdges(char[][] labyrinth, (int posY, int posX) position)
+        {
+            if (position.posY < 0 || position.posX < 0 ||
+                position.posY >= labyrinth.Length || position.posX >= labyrinth[0].Length)
+                return true;
+            return false;
         }
 
         private static char[][] CreateMatrix(string[] textLines)
