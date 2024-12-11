@@ -14,7 +14,6 @@ namespace Online_Exercises.AdventOfCode2024
             var stringText = File.ReadAllLines("AdventOfCode2024/8Dec2024.txt");
 
             var matrix = CreateMatrix(stringText);
-            //PrintMatrix(matrix);
 
             Dictionary<char, List<(int posY, int posX)>> nodes = GetNodes(matrix);
             var result = CalculateAntinodes(matrix, nodes);
@@ -40,8 +39,6 @@ namespace Online_Exercises.AdventOfCode2024
                     var antiNode2 = CalculateAntinodePosition(point2, point1);
                     if (antiNode2.posY >= 0 && antiNode2.posX >= 0 && antiNode2.posY < matrix.Length && antiNode2.posX < matrix[0].Length)
                         matrix[antiNode2.posY][antiNode2.posX] = '#';
-
-                    //PrintMatrix(matrix);
                 }
             }
 

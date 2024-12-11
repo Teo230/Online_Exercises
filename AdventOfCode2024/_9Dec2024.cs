@@ -9,6 +9,8 @@ namespace Online_Exercises.AdventOfCode2024
 {
     public static class _9Dec2024
     {
+        // TODO - Not working, example good, data no
+        // Last failed checksum - 90786863565
         public static void Part1()
         {
             var stringText = File.ReadAllText("AdventOfCode2024/9Dec2024.txt");
@@ -24,7 +26,7 @@ namespace Online_Exercises.AdventOfCode2024
             //Console.WriteLine(compactDisk);
 
             var checksum = CalculateChecksum(compactDisk);
-            Console.WriteLine("\nChecksum"); // TODO - Something wrong > Make it more performat Swap-Block
+            Console.WriteLine("\nChecksum");
             Console.WriteLine(checksum);
         }
 
@@ -62,20 +64,13 @@ namespace Online_Exercises.AdventOfCode2024
 
         private static string ZipBlocks(string disk)
         {
-            var regex = new Regex("\\.");
-            var totalFreeSpace = regex.Count(disk);
             var leftText = disk.TrimEnd('.');
-            double totalZip = 0.0;
 
             while (true)
             {
+                var diskSpaces = disk.ToCharArray();
                 leftText = disk.TrimEnd('.');
-                double blockSpace = disk.Length - totalFreeSpace;
-                if (blockSpace == leftText.Length) return disk;
-
-                var newTotalZip = (blockSpace / leftText.Length) *100;
-                if (totalZip != newTotalZip) Console.WriteLine($"{totalZip:#.0}%");
-                totalZip = newTotalZip;
+                if (!leftText.Contains('.')) return disk;
 
                 var lastDigit = disk.Last(x => x != '.');
                 var lastDigitIndex = disk.LastIndexOf(lastDigit);
@@ -83,7 +78,10 @@ namespace Online_Exercises.AdventOfCode2024
                 var firstFreeSpace = disk.First(x => x == '.');
                 var firstDigitIndex = disk.IndexOf(firstFreeSpace);
 
-                disk = disk.Swap(firstDigitIndex, lastDigitIndex);
+                diskSpaces[firstDigitIndex] = lastDigit;
+                diskSpaces[lastDigitIndex] = firstFreeSpace;
+
+                disk = new string(diskSpaces);
             }
         }
 
@@ -101,19 +99,6 @@ namespace Online_Exercises.AdventOfCode2024
             }
 
             return result;
-        }
-
-        public static string Swap(this string input, int index1, int index2)
-        {
-            if (index1 == index2 || 
-                index1 < 0 || 
-                index2 < 0 || 
-                index1 >= input.Length || 
-                index2 >= input.Length)
-                return input;
-
-            var charArray = input.Select((c, i) => i == index1 ? input[index2] : i == index2 ? input[index1] : c).ToArray();
-            return new string(charArray);
         }
     }
 }
