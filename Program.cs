@@ -46,8 +46,11 @@ using Online_Exercises.TopInterview150;
 //_8Dec2024.Part1();
 //_8Dec2024.Part2();
 
-_9Dec2024.Part1();
-_9Dec2024.Part2();
+// _9Dec2024.Part1();
+// _9Dec2024.Part2();
+
+_10Dec2024.Part1();
+_10Dec2024.Part2();
 
 #endregion
 

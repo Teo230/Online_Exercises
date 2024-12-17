@@ -72,6 +72,7 @@ namespace Online_Exercises.AdventOfCode2024
         {
             long totalLoops = 0;
             var clonedLab = labyrinth.DeepClone();
+            List<(int posY, int posX)> visitedPlaces = new();
 
             while (true)
             {
@@ -84,7 +85,10 @@ namespace Online_Exercises.AdventOfCode2024
                 var desiredPosition = NextPosition(labyrinth, guardPosition.posY, guardPosition.posX, direction);
 
                 // If touch the edges, stop the move
-                if (ItTouchsTheEdges(labyrinth, desiredPosition)) return totalLoops;
+                if (ItTouchsTheEdges(labyrinth, desiredPosition))
+                {
+                    return totalLoops;
+                } 
 
                 var desiredPositionValue = labyrinth[desiredPosition.posY][desiredPosition.posX];
                 var guardPositionValue = labyrinth[guardPosition.posY][guardPosition.posX];
@@ -102,6 +106,8 @@ namespace Online_Exercises.AdventOfCode2024
                 {
                     if (guardPositionValue != '+') labyrinth[guardPosition.posY][guardPosition.posX] = GetDirectionChar(direction);
                     labyrinth[desiredPosition.posY][desiredPosition.posX] = '^';
+
+                    visitedPlaces.Add(guardPosition);
                 }
 
                 // If it's turning around, replace with a mark
@@ -120,9 +126,9 @@ namespace Online_Exercises.AdventOfCode2024
             var startPosition = guardPosition;
             currentDirection = ChangeDirection(currentDirection);
             var clonedLab = labyrinth.DeepClone();
-            List<(int, int)> loopPlaces = new List<(int, int)>() { startPosition };
 
-            while (true)
+            int iterations = 0;
+            while (true && iterations < 10_000)
             {
                 var desiredPosition = NextPosition(clonedLab, guardPosition.posY, guardPosition.posX, currentDirection);
 
@@ -140,11 +146,12 @@ namespace Online_Exercises.AdventOfCode2024
                 }
 
                 guardPosition = desiredPosition;
-                loopPlaces.Add(guardPosition);
 
                 if (guardPosition == startPosition) return true;
-                if (loopPlaces.Where(x => x == guardPosition).Count() > 2) return true;
+                iterations ++;
             }
+
+            return false;
         }
 
         private static bool ItTouchsTheEdges(char[][] labyrinth, (int posY, int posX) position)
